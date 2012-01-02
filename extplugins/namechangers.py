@@ -97,74 +97,74 @@ class NamechangersPlugin(b3.plugin.Plugin):
     def onLoadConfig(self):
         self.verbose('Loading Config File')
         try:
-            self.LogLocation = self.config.get('settings', 'LogLocation')
+            self.logLocation = self.config.get('settings', 'LogLocation')
         except:
-            self.LogLocation = 0
+            self.logLocation = 0
             self.callLog('all', 'No Config Value Set. Logging Disabled')
             
         try:
-            self.NamesMax = self.config.get('settings', 'NamesMax')
+            self.namesMax = self.config.get('settings', 'NamesMax')
         except:
-            self.NamesMax = 10
+            self.namesMax = 10
             self.callLog('all', 'No Config Value Set. Using Default Max Names of 10.')
         
         try:
-            self.AnnounceKick = self.config.get('messages', 'AnnounceKick')
+            self.announceKick = self.config.get('messages', 'AnnounceKick')
         except:
-            self.AnnounceKick = "User Kicked By System"
+            self.announceKick = "User Kicked By System"
             
         try:
-            self.AnnounceTemp = self.config.get('messages', 'AnnounceTemp')
+            self.announceTemp = self.config.get('messages', 'AnnounceTemp')
         except:
-            self.AnnounceTemp = "User Kicked By System"
+            self.announceTemp = "User Kicked By System"
            
         try:
-            self.AnnounceBan = self.config.get('messages', 'AnnounceBan')
+            self.announceBan = self.config.get('messages', 'AnnounceBan')
         except:
-            self.AnnounceBan = "User Kicked By System"
+            self.announceBan = "User Kicked By System"
             
         try:
-            self.ResetOnDeath = self.config.get('settings', 'ResetOnDeath')
+            self.resetOnDeath = self.config.get('settings', 'ResetOnDeath')
         except:
-            self.ResetOnDeath = 'off'
+            self.resetOnDeath = 'off'
             self.callLog('all', 'No Config Value Set. Will Not Reset Counters On Death')
             
         try:
-            self.Action = self.config.get('settings', 'Action')
+            self.action = self.config.get('settings', 'Action')
         except:
-            self.Action = 1
+            self.action = 1
             self.callLog('all', 'No Config Value Set. Using Kick As Default Action')  
-        if (self.Action == 2):
+        if (self.action == 2):
             try:
-                self.Duration = self.config.get('settings', 'Duration')
+                self.duration = self.config.get('settings', 'Duration')
             except:
-                self.Duration = '2h'
+                self.duration = '2h'
                 self.callLog('all', 'No Config Value set for TempBan, using 2 hours')
         self.roundCurrent = 1
 
         try:
-            self.Ignore = self.config.get('settings', 'Ignore')
+            self.ignore = self.config.get('settings', 'Ignore')
         except:
-            self.Ignore = 'off'
+            self.ignore = 'off'
             self.callLog('all', 'No Config Value Set. Not Ignoring Any User Level')
             
         try:
-            self.IgnoreLevel = self.config.get('settings', 'IgnoreLevel')
+            self.ignoreLevel = self.config.get('settings', 'IgnoreLevel')
         except:
-            self.IgnoreLevel = 0
-            self.Ignore = 'off'
+            self.ignoreLevel = 0
+            self.ignore = 'off'
             self.callLog('all', 'No Config Value Set for Ignore Level. Setting to 0')
             
         try:
-            self.Notify = self.config.get('settings', 'Notify')
+            self.notify = self.config.get('settings', 'Notify')
         except:
-            self.Notify = 'off'
+            self.notify = 'off'
             self.callLog('all', 'No Config Value Set. Not Notifying any admins.')
         try:
-            self.NotifyLevel = self.config.get('settings', 'NotifyLevel')
+            self.notifyLevel = self.config.get('settings', 'NotifyLevel')
         except:
-            self.NotifyLevel = 0
-            self.Notify = 'off'
+            self.notifyLevel = 0
+            self.notify = 'off'
             self.callLog('all', 'No Config Value Set for Notify Level. Setting to 0')            
             
             
@@ -197,77 +197,77 @@ class NamechangersPlugin(b3.plugin.Plugin):
                 
                 prevname = client.var(self, 'savedname').value
                 client.setvar(self, 'savedname', name)
-                logdata = '%s changed name %s times. His name was %s. Max is %s (GUID: %s)' % (name, n, prevname, self.NamesMax, client.guid)
-                self.callLog('log', logdata)
-                if self.Notify == 'on':
+                logData = '%s changed name %s times. His name was %s. Max is %s (GUID: %s)' % (name, n, prevname, self.namesMax, client.guid)
+                self.callLog('log', logData)
+                if self.notify == 'on':
                     clientdata = self.console.clients.getList()
                     ##self.callLog('log', 'In Notify')
                     for player in clientdata:
-                        if int(player.maxLevel) >= int(self.NotifyLevel):
-                            ##logdata = '%s %s %s' % (player.maxLevel, player.exactName, player.cid)
-                            ##self.callLog('log', logdata)
+                        if int(player.maxLevel) >= int(self.notifyLevel):
+                            ##logData = '%s %s %s' % (player.maxLevel, player.exactName, player.cid)
+                            ##self.callLog('log', logData)
                             player.message('User %s has changed their name %s times (Prev: %s) Slot %s' % (client.exactName, n, prevname, client.cid))
                                                  
                 ## Check user level versus ignore level.
-                if self.Ignore == 'on':
+                if self.ignore == 'on':
                     self.callLog('log', 'Ignore != 0')
-                    if (client.maxLevel < self.IgnoreLevel):
+                    if (client.maxLevel < self.ignoreLevel):
                         self.runAction(client, n, name)
                     else:
-                        logdata = ('User %s ignored via Ignore enabled. Level: %s - MaxLevel: %s' % (name, client.maxLevel, self.IgnoreLevel))
-                        self.callLog('log', logdata)                
+                        logData = ('User %s ignored via Ignore enabled. Level: %s - MaxLevel: %s' % (name, client.maxLevel, self.ignoreLevel))
+                        self.callLog('log', logData)                
                 else:
                     ## Check if greater then max allowed name changes.
                     self.runAction(client, n, name)
                     
             ## Reset on Death or no?            
-            if self.ResetOnDeath == 'on':
+            if self.resetOnDeath == 'on':
                 target.setvar(self, 'namechanges', 0)
-                logdata = 'Resetting count for user %s as per config' % (event.target.exactName)
-                ##self.callLog('log', logdata)
+                logData = 'Resetting count for user %s as per config' % (event.target.exactName)
+                ##self.callLog('log', logData)
         
         ## New Round, increase round number
         elif (event.type == b3.events.EVT_GAME_ROUND_START):
             self.roundCurrent = self.roundCurrent + 1        
                 
     ## Logging Feature... all is both local file and b3 log. debug is to b3 log only. all or anything else is both locations        
-    def callLog(self, logtype, data):
-        if logtype == 'debug':
+    def callLog(self, logType, data):
+        if logType == 'debug':
             self.debug(data)
-        elif logtype == 'all':
+        elif logType == 'all':
             self.debug(data)
-            if self.LogLocation != 0:
-                filelog = ('%s' % self.LogLocation)
+            if self.logLocation != 0:
+                filelog = ('%s' % self.logLocation)
                 
                 f = open(filelog, "a")
                 f.write(data + '\n')
                 f.close()
         else:
-            if self.LogLocation != 0:
-                filelog = ('%s' % self.LogLocation)
+            if self.logLocation != 0:
+                filelog = ('%s' % self.logLocation)
                 
                 f = open(filelog, "a")
                 f.write(data + '\n')
                 f.close()            
             
     def runAction(self, client, n, name):
-        if int(self.NamesMax) <= int(n):
-            logdata = ('In runAction Action: %s - User: %s - n: %s %s' % (self.Action, name, int(n), int(self.NamesMax)))
-            self.callLog('log', logdata)
+        if int(self.namesMax) <= int(n):
+            logData = ('In runAction Action: %s - User: %s - n: %s %s' % (self.action, name, int(n), int(self.namesMax)))
+            self.callLog('log', logData)
             ## check action to take... 
-            if int(self.Action) == 1:
-                logdata = ('Kicking user %s for Too Many Namechanges (GUID: %s)' % (name, client.guid))
-                self.callLog('all', logdata)
-                client.kick(reason=logdata, keyword="NameChanger", data="%s Namechanges" % n)
-            elif int(self.Action) == 2:
-                logdata = ('TempBan for user %s for Too Many Namechanges (GUID: %s)' % (name, client.guid))
-                self.callLog('all', logdata)
-                Duration = '12h'
-                client.tempban(reason=logdata, keyword="NameChanger", duration=Duration, data="%s Namechanges" % n)
-            elif int(self.Action) == 3:
-                logdata = ('PermBan for user %s for Too Many Namechanges (GUID: %s)' % (name, client.guid))
-                self.callLog('all', logdata)
-                client.ban(reason=logdata, keyword="NameChanger", data="%s Namechanges" % n)
+            if int(self.action) == 1:
+                logData = ('Kicking user %s for Too Many Namechanges (GUID: %s)' % (name, client.guid))
+                self.callLog('all', logData)
+                client.kick(reason=logData, keyword="NameChanger", data="%s Namechanges" % n)
+            elif int(self.action) == 2:
+                logData = ('TempBan for user %s for Too Many Namechanges (GUID: %s)' % (name, client.guid))
+                self.callLog('all', logData)
+                duration = '12h'
+                client.tempban(reason=logData, keyword="NameChanger", duration=duration, data="%s Namechanges" % n)
+            elif int(self.action) == 3:
+                logData = ('PermBan for user %s for Too Many Namechanges (GUID: %s)' % (name, client.guid))
+                self.callLog('all', logData)
+                client.ban(reason=logData, keyword="NameChanger", data="%s Namechanges" % n)
                 
                 
     ## Clean function for cleaning usernames for comparison... should keep from false positives        
