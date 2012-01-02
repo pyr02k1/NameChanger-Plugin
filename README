@@ -1,0 +1,4 @@
+*****
+Modify the config file in extplugins/conf to suit. Some of the config settings works and others do not. Most of them work file.
+
+ENSURE YOU SET THE LOG LOCATION OR DISABLE IT. It is enabled by default to C:\NameChanger.log
