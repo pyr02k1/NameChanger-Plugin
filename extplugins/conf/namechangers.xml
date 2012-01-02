@@ -1,0 +1,49 @@
+<configuration plugin="namechangers">
+    <settings name="settings">
+        <!-- 
+        Number of Name changes permitted before performing selected actions
+        -->
+        <set name="NamesMax">5</set>
+        <!-- 
+        You can choose different actions when the player reaches the treshold.
+        Please write the corresponding number of the action of your choice:
+            Kick        : 1
+            Tempban     : 2
+            Permban     : 3
+        -->
+        <set name="Action">2</set>
+        <!--
+        If you have chosen to tempban the player, you can define a duration
+        as in B3 duration format.
+        Example:
+            6m : 6 Minutes
+            2h : 2 Hours
+            1w : 1 Week
+            3d : 3 Days
+		*** CURRENTLY DISABLED DEFAULT TO 12h HARDCODED ***
+        -->
+        <set name="Duration">12h</set>
+        <!-- Ignore after minimum level. on or off -->
+        <set name="Ignore">off</set>
+        <!-- Minimum level to ignore. i.e. players with equal or higher level will not be checked 
+        -->
+        <set name="IgnoreLevel">40</set>
+        <!-- Reset counter on death? on or off -->
+        <set name="ResetOnDeath">off</set>
+        <!-- Location to place Name Changer Only log at. set to 0 for disabled -->
+        <set name="LogLocation">C:\Namechangers.log</set>
+        <!-- Notify Online Admins of possible namechanger? on or off -->
+        <set name="Notify">on</set>
+        <!-- Notify at what level? -->
+        <set name="NotifyLevel">40</set>
+    </settings>
+    <settings name="messages">
+    <!-- What to announce on Kick to the server when banning a user. 
+    If set to 0, default is "User Kicked By System". %s is only permitted once and will
+    relate to the user being kicked. *** CURRENTLY DISABLED : HARDCODED *** -->
+        <set name="AnnounceKick">User %s Kicked for too many namechanges</set>
+        <set name="AnnounceTemp">User %s Temp Banned for too many namechanges</set>
+        <set name="AnnounceBan">User %s PermBanned for too many namechanges</set>
+    </settings>
+
+</configuration>
