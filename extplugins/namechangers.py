@@ -45,6 +45,9 @@
 #   * Fixed Kick/Ban again and fixed logging. 
 # 12-26-2011 - 0.9 - NRP|pyr0
 #   * Modified some lines, fixed some bugs
+# 12-31-2011 - 0.91 - NRP|pyr0
+#	* Added a few extra bits to try and get in line with B3 standards
+#	  Should work, but needs testing. Still yet to test Perm Ban though.
 # 
 #
 #  ADDITIONAL NOTES:
