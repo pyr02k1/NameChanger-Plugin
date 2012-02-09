@@ -1,4 +1,16 @@
-*****
-Modify the config file in extplugins/conf to suit. Some of the config settings works and others do not. Most of them work file.
+README
 
-ENSURE YOU SET THE LOG LOCATION OR DISABLE IT. It is enabled by default to C:\NameChanger.log
+This plugin was designed for the {zA} servers (ZeroAlpha.us) in an attempt to catch and stop namechanger hacks. It is 
+distributed under the GNU GPL v2. You can get a copy of this license from the FSF (Free Software Foundation). You are
+required to distribute the source code of this script in the case of releasing it by any means.
+
+To Setup:
+Locate and open the extplugins/conf/namechangers.xml document. Inside, follow the various configuration methods to suit your
+tastes
+YOU MUST... I STRESS THIS !!!MUST!!! either disable logging or modify the log location to suit your system. IT IS ENABLED BY
+DEFAULT. The default location is C:\NameChanger.log... I recommend you tie it to your home directory or the current server
+location and rename it to be more descriptive (e.g. NameChangers-MainServer.log). YOU MUST disable if you plan not to use. If
+you dont, the B3 bot may crash when it goes to log to the log file.
+
+Questions, Comments, Recommendations, Bugs?
+Contact pyr02k1 [at] NerdRagePros.com or pyr0 on the ZeroAlpha.us forums or pyr02k1 on the B3 forums.
