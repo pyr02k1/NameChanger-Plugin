@@ -20,7 +20,6 @@
             2h : 2 Hours
             1w : 1 Week
             3d : 3 Days
-		*** CURRENTLY DISABLED DEFAULT TO 12h HARDCODED ***
         -->
         <set name="Duration">12h</set>
         <!-- Ignore after minimum level. on or off -->
@@ -40,10 +39,11 @@
     <settings name="messages">
     <!-- What to announce on Kick to the server when banning a user. 
     If set to 0, default is "User Kicked By System". %s is only permitted once and will
-    relate to the user being kicked. *** CURRENTLY DISABLED : HARDCODED *** -->
-        <set name="AnnounceKick">User %s Kicked for too many namechanges</set>
-        <set name="AnnounceTemp">User %s Temp Banned for too many namechanges</set>
-        <set name="AnnounceBan">User %s PermBanned for too many namechanges</set>
+    relate to the user being kicked. MUST include 2 %s calls. One for Name and one
+    for GUID. If not, b3 may crash... You've been warned.-->
+        <set name="AnnounceKick">User %s Kicked for too many namechanges (GUID: %s)</set>
+        <set name="AnnounceTemp">User %s Temp Banned for too many namechanges (GUID: %s)</set>
+        <set name="AnnounceBan">User %s PermBanned for too many namechanges (GUID: %s)</set>
     </settings>
 
 </configuration>
