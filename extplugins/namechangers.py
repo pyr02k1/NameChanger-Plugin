@@ -23,7 +23,9 @@
 #  based on the Aimbot Detector by Freelander as well as the Ascii and Color name
 #  plugins. A small bit was learned from the PowerAdminURT plugin as well.
 #  This plugin wouldn't of happened if not for their plugins (I'm not a python 
-#  programmer)
+#  programmer) THIS PLUGIN WAS WRITTEN WITH Call Of Duty 4 IN MIND. IT MAY OR MAY
+#  NOT WORK ON OTHER GAMES. Feel free to test it and let me know... I'll make a list
+#  of supported games if I get a report of it working on other games.
 #
 # CHANGELOG
 #
@@ -49,6 +51,9 @@
 #	* Added a few extra bits to try and get in line with B3 standards
 #	  Should work, but needs testing. Still yet to test Perm Ban though.
 # 
+# 02-08-2012 - 0.99 - NRP|pyr0
+#   * All SHOULD be functional. Unable to test tonight.
+# 
 #
 #  ADDITIONAL NOTES:
 #  Due to limitations in the CoD4 logging, name changers can only be spotted when
@@ -58,7 +63,21 @@
 #  other server admins with their issue. The PHP script is very very rough, but it
 #  functions as it should. This one will be complete for auto banning cheaters 
 #  that use namechangers
-
+#
+#  Upcoming:
+#  Ability to pick and choose what goes into messages. As is, it requires 2 variables
+# (%s twice, once for name and one for GUID). I plan to make it so it can be set by
+#  the user. (e.g. place one variable set for the calls wanted [GUID, ID, SLOT, NAME]
+#  and then the %s can relate to those calls) I have no clue when I get around to this.
+#
+#  Numbering Scheme:
+#  Until v1.0 it was on each feature added or fixed. After 1.0, it will be minor 
+#  revision numbers for bugfixes (e.g. x.x.2). Minor will be related to minor features
+#  being added (the current upcoming list is an example. These will be x.2.x). Major
+#  will be limited to major features being added in (v2.x.x ... I honestly never
+#  expect to reach this level. Not much can be added/improved.
+#
+#
 ## @file
 #  This plugin checks for clients changing names to avoid admins. 
 
@@ -114,17 +133,17 @@ class NamechangersPlugin(b3.plugin.Plugin):
         try:
             self.announceKick = self.config.get('messages', 'AnnounceKick')
         except:
-            self.announceKick = "User Kicked By System"
+            self.announceKick = "Kicking user %s for Too Many Namechanges (GUID: %s)"
             
         try:
             self.announceTemp = self.config.get('messages', 'AnnounceTemp')
         except:
-            self.announceTemp = "User Kicked By System"
+            self.announceTemp = "TempBan user %s for Too Many Namechanges (GUID: %s)"
            
         try:
             self.announceBan = self.config.get('messages', 'AnnounceBan')
         except:
-            self.announceBan = "User Kicked By System"
+            self.announceBan = "PermBan user %s for Too Many Namechanges (GUID: %s)"
             
         try:
             self.resetOnDeath = self.config.get('settings', 'ResetOnDeath')
@@ -136,7 +155,8 @@ class NamechangersPlugin(b3.plugin.Plugin):
             self.action = self.config.get('settings', 'Action')
         except:
             self.action = 1
-            self.callLog('all', 'No Config Value Set. Using Kick As Default Action')  
+            self.callLog('all', 'No Config Value Set. Using Kick As Default Action') 
+            
         if (self.action == 2):
             try:
                 self.duration = self.config.get('settings', 'Duration')
@@ -200,7 +220,7 @@ class NamechangersPlugin(b3.plugin.Plugin):
                 
                 prevname = client.var(self, 'savedname').value
                 client.setvar(self, 'savedname', name)
-                logData = '%s changed name %s times. His name was %s. Max is %s (GUID: %s)' % (name, n, prevname, self.namesMax, client.guid)
+                logData = '%s changed name %s times. His name was %s. Max is %s (GUID: %s) @%s' % (name, n, prevname, self.namesMax, client.guid, client.id)
                 self.callLog('log', logData)
                 if self.notify == 'on':
                     clientdata = self.console.clients.getList()
@@ -209,7 +229,7 @@ class NamechangersPlugin(b3.plugin.Plugin):
                         if int(player.maxLevel) >= int(self.notifyLevel):
                             ##logData = '%s %s %s' % (player.maxLevel, player.exactName, player.cid)
                             ##self.callLog('log', logData)
-                            player.message('User %s has changed their name %s times (Prev: %s) Slot %s' % (client.exactName, n, prevname, client.cid))
+                            player.message('User %s has changed their name %s times (Prev: %s) Slot %s (@%s)' % (client.exactName, n, prevname, client.cid, client.id))
                                                  
                 ## Check user level versus ignore level.
                 if self.ignore == 'on':
@@ -259,16 +279,16 @@ class NamechangersPlugin(b3.plugin.Plugin):
             self.callLog('log', logData)
             ## check action to take... 
             if int(self.action) == 1:
-                logData = ('Kicking user %s for Too Many Namechanges (GUID: %s)' % (name, client.guid))
+                logData = (self.announceKick % (name, client.guid))
                 self.callLog('all', logData)
                 client.kick(reason=logData, keyword="NameChanger", data="%s Namechanges" % n)
             elif int(self.action) == 2:
-                logData = ('TempBan for user %s for Too Many Namechanges (GUID: %s)' % (name, client.guid))
+                logData = (self.announceTemp % (name, client.guid))
                 self.callLog('all', logData)
                 duration = '12h'
                 client.tempban(reason=logData, keyword="NameChanger", duration=duration, data="%s Namechanges" % n)
             elif int(self.action) == 3:
-                logData = ('PermBan for user %s for Too Many Namechanges (GUID: %s)' % (name, client.guid))
+                logData = (self.announceBan % (name, client.guid))
                 self.callLog('all', logData)
                 client.ban(reason=logData, keyword="NameChanger", data="%s Namechanges" % n)
                 
