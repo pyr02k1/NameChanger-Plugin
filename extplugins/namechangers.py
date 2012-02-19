@@ -53,6 +53,8 @@
 # 
 # 02-08-2012 - 0.99 - NRP|pyr0
 #   * All SHOULD be functional. Unable to test tonight.
+# 02-19-2012 - 1.00 - NRP|pyr0
+#   * I've run this live on {zA} NY Dom for a week and some change now with no issue.
 # 
 #
 #  ADDITIONAL NOTES:
@@ -82,7 +84,7 @@
 #  This plugin checks for clients changing names to avoid admins. 
 
 __author__  = 'NRP|pyr0'
-__version__ = '0.91'
+__version__ = '1.0'
 
 import b3
 import b3.events
