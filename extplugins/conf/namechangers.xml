@@ -30,7 +30,7 @@
         <!-- Reset counter on death? on or off -->
         <set name="ResetOnDeath">off</set>
         <!-- Location to place Name Changer Only log at. set to 0 for disabled -->
-        <set name="LogLocation">C:\Namechangers.log</set>
+        <set name="LogLocation">C:\Namechangers-NYDom.log</set>
         <!-- Notify Online Admins of possible namechanger? on or off -->
         <set name="Notify">on</set>
         <!-- Notify at what level? -->
