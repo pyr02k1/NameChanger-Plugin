@@ -14,3 +14,17 @@ you dont, the B3 bot may crash when it goes to log to the log file.
 
 Questions, Comments, Recommendations, Bugs?
 Contact pyr02k1 [at] NerdRagePros.com or pyr0 on the ZeroAlpha.us forums or pyr02k1 on the B3 forums.
+
+Logging methods:
+all... This will enable full debugging with the property of writing ALL calls to the log file of choice as well as the b3 log
+    file (This is equivalent to debug mode, just with writing to a physical file to limit additional info that goes with the
+    normal b3 log)
+debug... This method will be equivalent to the above, but with a limitation that it will only write the data to the b3 log
+limited... Will write any name changes and kicks/bans to the namechanger log file and only write kicks/bans to the b3 log.
+    In the case no LogLocation is specified, it will write all the limited data to the b3.log
+minimal... This will only write kicks/bans to the b3 log and the LogLocation. If no LogLocation is specified (or 0), it will
+    only log to the b3 log file.
+none... This will disable logging completely. Nothing will be said to the logs. NOT recommended. Available due to a request
+    for this feature. Not necessarily a good idea though. 
+    
+Limited method is enabled by default. 

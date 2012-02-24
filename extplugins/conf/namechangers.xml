@@ -29,6 +29,8 @@
         <set name="IgnoreLevel">40</set>
         <!-- Reset counter on death? on or off -->
         <set name="ResetOnDeath">off</set>
+        <!-- Log Level? all debug limited minimal none/off/0 all are valid options. README for explanations -->
+        <set name="LogLevel">limited</set>
         <!-- Location to place Name Changer Only log at. set to 0 for disabled -->
         <set name="LogLocation">C:\Namechangers-NYDom.log</set>
         <!-- Notify Online Admins of possible namechanger? on or off -->

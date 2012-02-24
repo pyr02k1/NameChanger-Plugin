@@ -53,8 +53,12 @@
 # 
 # 02-08-2012 - 0.99 - NRP|pyr0
 #   * All SHOULD be functional. Unable to test tonight.
-# 02-19-2012 - 1.00 - NRP|pyr0
+# 02-19-2012 - 1.0.0 - NRP|pyr0
 #   * I've run this live on {zA} NY Dom for a week and some change now with no issue.
+# 02-23-2012 - 1.0.1 - NRP|pyr0
+#   * Coding added to limit log code and to allow disabling of it. Untested. 1.02 will
+#     be the tested code. 1.01 is a dev revision to allow me to make sure it is updated
+#     on github prior to testing and release
 # 
 #
 #  ADDITIONAL NOTES:
@@ -84,7 +88,7 @@
 #  This plugin checks for clients changing names to avoid admins. 
 
 __author__  = 'NRP|pyr0'
-__version__ = '1.0'
+__version__ = '1.0.1'
 
 import b3
 import b3.events
@@ -120,77 +124,90 @@ class NamechangersPlugin(b3.plugin.Plugin):
         
     def onLoadConfig(self):
         self.verbose('Loading Config File')
+        
         try:
-            self.logLocation = self.config.get('settings', 'LogLocation')
+            self.logLevel = self.config.get('settings', 'LogLevel')
         except:
-            self.logLocation = 0
-            self.callLog('all', 'No Config Value Set. Logging Disabled')
-            
+            self.logLevel = 'limited'
+            self.callLog('debug', 'No Config Value Set. Defaulting to limited logging.')
+        
+        if (self.logLevel == 'all' || self.logLevel == 'limited' || self.logLevel == 'minimal')
+            try:
+                self.logLocation = self.config.get('settings', 'LogLocation')
+                self.callLog('debug', ('LogLocation is set to %s' % self.logLocation))
+            except:
+                self.logLocation = 0
+                self.callLog('debug', 'No Config Value Set. Logging to File Disabled.')
+        
         try:
             self.namesMax = self.config.get('settings', 'NamesMax')
         except:
             self.namesMax = 10
-            self.callLog('all', 'No Config Value Set. Using Default Max Names of 10.')
+            self.callLog('debug', 'No Config Value Set. Using Default Max Names of 10.')
         
         try:
             self.announceKick = self.config.get('messages', 'AnnounceKick')
         except:
             self.announceKick = "Kicking user %s for Too Many Namechanges (GUID: %s)"
+            self.callLog('debug', 'No Config Value Set for AnnounceKick. Defaulting')
             
         try:
             self.announceTemp = self.config.get('messages', 'AnnounceTemp')
         except:
             self.announceTemp = "TempBan user %s for Too Many Namechanges (GUID: %s)"
+            self.callLog('debug', 'No Config Value Set for AnnounceTemp. Defaulting')
            
         try:
             self.announceBan = self.config.get('messages', 'AnnounceBan')
         except:
             self.announceBan = "PermBan user %s for Too Many Namechanges (GUID: %s)"
+            self.callLog('debug', 'No Config Value Set for AnnounceBan. Defaulting')
             
         try:
             self.resetOnDeath = self.config.get('settings', 'ResetOnDeath')
         except:
             self.resetOnDeath = 'off'
-            self.callLog('all', 'No Config Value Set. Will Not Reset Counters On Death')
+            self.callLog('debug', 'No Config Value Set. Will Not Reset Counters On Death')
             
         try:
             self.action = self.config.get('settings', 'Action')
         except:
             self.action = 1
-            self.callLog('all', 'No Config Value Set. Using Kick As Default Action') 
+            self.callLog('debug', 'No Config Value Set. Using Kick As Default Action') 
             
         if (self.action == 2):
             try:
                 self.duration = self.config.get('settings', 'Duration')
             except:
                 self.duration = '2h'
-                self.callLog('all', 'No Config Value set for TempBan, using 2 hours')
+                self.callLog('debug', 'No Config Value set for TempBan, using 2 hours')
+                
         self.roundCurrent = 1
 
         try:
             self.ignore = self.config.get('settings', 'Ignore')
         except:
             self.ignore = 'off'
-            self.callLog('all', 'No Config Value Set. Not Ignoring Any User Level')
+            self.callLog('debug', 'No Config Value Set. Not Ignoring Any User Level')
             
         try:
             self.ignoreLevel = self.config.get('settings', 'IgnoreLevel')
         except:
             self.ignoreLevel = 0
             self.ignore = 'off'
-            self.callLog('all', 'No Config Value Set for Ignore Level. Setting to 0')
+            self.callLog('debug', 'No Config Value Set for Ignore Level. Setting to 0')
             
         try:
             self.notify = self.config.get('settings', 'Notify')
         except:
             self.notify = 'off'
-            self.callLog('all', 'No Config Value Set. Not Notifying any admins.')
+            self.callLog('debug', 'No Config Value Set. Not Notifying any admins.')
         try:
             self.notifyLevel = self.config.get('settings', 'NotifyLevel')
         except:
             self.notifyLevel = 0
             self.notify = 'off'
-            self.callLog('all', 'No Config Value Set for Notify Level. Setting to 0')            
+            self.callLog('debug', 'No Config Value Set for Notify Level. Setting to 0')            
             
             
     def onEvent(self, event):
@@ -204,17 +221,19 @@ class NamechangersPlugin(b3.plugin.Plugin):
                 client.setvar(self, 'namechanges', 0)
                 client.setvar(self, 'savedname', self.clean(event.client.exactName))
                 client.setvar(self, 'roundCurrent', self.roundCurrent)
+                self.callLog('debug', ('roundCurrent, namechanges and savedname being set for user %s' % event.client.exactName))
             ## Save current, cleaned name and saved round number off client (killer)
             name = self.clean(event.client.exactName)
             savedRound = client.var(self, 'roundCurrent').value
             if (savedRound == None):
                 savedRound = self.roundCurrent
                 client.setvar(self, 'roundCurrent', savedRound)
-            ##self.debug('%s %s' % (self.roundCurrent, savedRound))
+                self.callLog('debug', ('savedRound being set to %s for user %s' % (self.roundCurrent, event.client.exactName)))
             ## Check if current round matches saved round number. if not, update user
             if (int(savedRound) != int(self.roundCurrent)):
                 client.setvar(self, 'namechanges', 0)
                 client.setvar(self, 'roundCurrent', self.roundCurrent)
+                self.callLog('debug', 'Round Numbers dont match to saved data. Updating user. Resetting Count')
             ## Check if names match
             if (name != client.var(self, 'savedname').value):
                 n = client.var(self, 'namechanges').value + 1
@@ -223,75 +242,90 @@ class NamechangersPlugin(b3.plugin.Plugin):
                 prevname = client.var(self, 'savedname').value
                 client.setvar(self, 'savedname', name)
                 logData = '%s changed name %s times. His name was %s. Max is %s (GUID: %s) @%s' % (name, n, prevname, self.namesMax, client.guid, client.id)
-                self.callLog('log', logData)
+                self.callLog('limited', logData)
                 if self.notify == 'on':
                     clientdata = self.console.clients.getList()
-                    ##self.callLog('log', 'In Notify')
+                    self.callLog('debug', 'In Notify call. Notifying admins.')
                     for player in clientdata:
                         if int(player.maxLevel) >= int(self.notifyLevel):
-                            ##logData = '%s %s %s' % (player.maxLevel, player.exactName, player.cid)
-                            ##self.callLog('log', logData)
+                            logData = 'Admin: %s - Admin Level: %s - Admin ID: %s' % (player.exactName, player.maxLevel, player.cid)
+                            self.callLog('debug', logData)
                             player.message('User %s has changed their name %s times (Prev: %s) Slot %s (@%s)' % (client.exactName, n, prevname, client.cid, client.id))
                                                  
                 ## Check user level versus ignore level.
                 if self.ignore == 'on':
-                    self.callLog('log', 'Ignore != 0')
+                    self.callLog('debug', 'Ignore Enabled. Checking Data')
                     if (client.maxLevel < self.ignoreLevel):
                         self.runAction(client, n, name)
+                        self.callLog('debug', 'User level below ignoreLevel. Continuing to action')
                     else:
                         logData = ('User %s ignored via Ignore enabled. Level: %s - MaxLevel: %s' % (name, client.maxLevel, self.ignoreLevel))
-                        self.callLog('log', logData)                
+                        self.callLog('limited', logData)                
                 else:
                     ## Check if greater then max allowed name changes.
                     self.runAction(client, n, name)
+                    self.callLog('debug', 'Ignore Disabled. Continuing to action')
                     
             ## Reset on Death or no?            
             if self.resetOnDeath == 'on':
                 target.setvar(self, 'namechanges', 0)
                 logData = 'Resetting count for user %s as per config' % (event.target.exactName)
-                ##self.callLog('log', logData)
+                self.callLog('debug', logData)
         
         ## New Round, increase round number
         elif (event.type == b3.events.EVT_GAME_ROUND_START):
-            self.roundCurrent = self.roundCurrent + 1        
+            self.roundCurrent = self.roundCurrent + 1  
+            self.callLog('debug' 'New Round Started. Incrementing Round Number.')
                 
-    ## Logging Feature... all is both local file and b3 log. debug is to b3 log only. all or anything else is both locations        
+    ## Logging Feature... looks convoluted... hence the comments, self.writeLog checks for the physical logging     
     def callLog(self, logType, data):
-        if logType == 'debug':
+        if self.logLevel == "all":
             self.debug(data)
-        elif logType == 'all':
+            self.writeLog(data)
+            ## Scenario: ALL. Write to both.
+        elif self.logLevel == "debug":
             self.debug(data)
-            if self.logLocation != 0:
-                filelog = ('%s' % self.logLocation)
-                
-                f = open(filelog, "a")
-                f.write(data + '\n')
-                f.close()
-        else:
-            if self.logLocation != 0:
-                filelog = ('%s' % self.logLocation)
-                
-                f = open(filelog, "a")
-                f.write(data + '\n')
-                f.close()            
+            ## Marked as Debug. Write ONLY to b3 log
+        elif self.logLevel == "limited":
+            if logType == "limited":
+                self.writeLog(data)
+                ## Under limited logging. Write all data to the physical log, b3 below
+            elif logType == "minimal":
+                self.debug(data)
+                ## Still under limited. Log only kicks/bans to b3 log.
+        elif self.logLevel == "minimal":
+            if logType == "minimal":
+                self.debug(data)
+                self.writeLog(data)
+                ## Minimal Logging only. Write to both.
             
+    ## Write to physical log file.
+    def writeLog(self, data):
+        if self.logLocation != 0:
+            filelog = ('%s' % self.logLocation)
+            f = open(filelog, "a")
+            f.write(data + '\n')
+            f.close()
+            ## if loglocation isnt 0, then get location, open, write and close, in that order.
+    
+    
     def runAction(self, client, n, name):
         if int(self.namesMax) <= int(n):
             logData = ('In runAction Action: %s - User: %s - n: %s %s' % (self.action, name, int(n), int(self.namesMax)))
-            self.callLog('log', logData)
+            self.callLog('debug', logData)
             ## check action to take... 
             if int(self.action) == 1:
                 logData = (self.announceKick % (name, client.guid))
-                self.callLog('all', logData)
+                self.callLog('minimal', logData)
                 client.kick(reason=logData, keyword="NameChanger", data="%s Namechanges" % n)
             elif int(self.action) == 2:
                 logData = (self.announceTemp % (name, client.guid))
-                self.callLog('all', logData)
+                self.callLog('minimal', logData)
                 duration = '12h'
                 client.tempban(reason=logData, keyword="NameChanger", duration=duration, data="%s Namechanges" % n)
             elif int(self.action) == 3:
                 logData = (self.announceBan % (name, client.guid))
-                self.callLog('all', logData)
+                self.callLog('minimal', logData)
                 client.ban(reason=logData, keyword="NameChanger", data="%s Namechanges" % n)
                 
                 
